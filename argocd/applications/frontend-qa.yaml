@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: frontend-qa
+  namespace: argocd
+spec:
+  project: r7-project
+  source:
+    repoURL: git@github.com:RetailFactory/Configuracion-R7.git
+    targetRevision: main
+    path: apps/frontend/overlays/qa
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: r7-qa
+  syncPolicy:
+    # Recomendado manual para QA/PROD (quita automated)
+    syncOptions:
+      - CreateNamespace=true

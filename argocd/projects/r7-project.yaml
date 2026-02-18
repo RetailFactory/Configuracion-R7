@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: r7-project
+  namespace: argocd
+spec:
+  description: Proyecto GitOps para Frontend-R7 y Backend-R7
+  sourceRepos:
+    - 'https://github.com/RetailFactory/Configuracion-R7.git'
+    # Si usarás HTTPS para repo:
+    # - 'https://github.com/TU_ORG/Configuracion-R7.git'
+  destinations:
+    - namespace: r7-dev
+      server: https://kubernetes.default.svc
+    - namespace: r7-qa
+      server: https://kubernetes.default.svc
+    - namespace: r7-prod
+      server: https://kubernetes.default.svc
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

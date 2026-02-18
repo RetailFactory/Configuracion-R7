@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: frontend-prod
+  namespace: argocd
+spec:
+  project: r7-project
+  source:
+    repoURL: git@github.com:RetailFactory/Configuracion-R7.git
+    targetRevision: main
+    path: apps/frontend/overlays/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: r7-prod
+  syncPolicy:
+    # Recomendado manual para PROD
+    syncOptions:
+      - CreateNamespace=true
