@@ -7,7 +7,7 @@ resources:
   - ../../base
 
 images:
-  - name: docker.io/TU_USUARIO_DOCKERHUB/backend-r7
+  - name: docker.io/retailfactory/backend-r7
     newTag: qa-initial
 
 patches:

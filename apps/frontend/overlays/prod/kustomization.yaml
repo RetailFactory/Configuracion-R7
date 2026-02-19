@@ -7,7 +7,7 @@ resources:
   - ../../base
 
 images:
-  - name: docker.io/TU_USUARIO_DOCKERHUB/frontend-r7
+  - name: docker.io/retailfactory/frontend-r7
     newTag: prod-initial
 
 patches:
