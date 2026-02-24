@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: routing-dev
+  namespace: argocd
+spec:
+  project: r7-project
+  source:
+    repoURL: git@github.com:RetailFactory/Configuracion-R7.git
+    targetRevision: main
+    path: apps/routing/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: r7-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
