@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: r7
   annotations:
-    konghq.com/strip-path: "true"
+    konghq.com/strip-path: "false"
 spec:
   ingressClassName: kong
   rules:
