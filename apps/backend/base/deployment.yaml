@@ -46,6 +46,18 @@ spec:
                   name: backend-secrets
                   key: RABBITMQ_URL
 
+            - name: JWT_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: JWT_PRIVATE_KEY
+            
+            - name: JWT_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: JWT_PUBLIC_KEY
+
           readinessProbe:
             tcpSocket:
               port: 3000
