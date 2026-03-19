@@ -58,6 +58,76 @@ spec:
                   name: backend-secrets
                   key: JWT_PUBLIC_KEY
 
+            - name: SSO_PROVIDER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SSO_PROVIDER_NAME
+                  optional: true
+
+            - name: SSO_DEFAULT_COD_EMP
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SSO_DEFAULT_COD_EMP
+                  optional: true
+
+            - name: SSO_IDP_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SSO_IDP_PUBLIC_KEY
+                  optional: true
+
+            - name: SSO_IDP_ISSUER
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SSO_IDP_ISSUER
+                  optional: true
+
+            - name: SSO_IDP_AUDIENCE
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SSO_IDP_AUDIENCE
+                  optional: true
+
+            - name: SSO_TOKEN_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SSO_TOKEN_ENDPOINT
+                  optional: true
+
+            - name: SSO_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SSO_CLIENT_ID
+                  optional: true
+
+            - name: SSO_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SSO_CLIENT_SECRET
+                  optional: true
+
+            - name: SSO_REDIRECT_URI
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SSO_REDIRECT_URI
+                  optional: true
+
+            - name: SSO_ALLOW_INSECURE_TOKEN_PARSE
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SSO_ALLOW_INSECURE_TOKEN_PARSE
+                  optional: true
+
           readinessProbe:
             tcpSocket:
               port: 3000
