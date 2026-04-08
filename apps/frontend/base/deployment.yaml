@@ -27,6 +27,10 @@ spec:
               value: "production"
             - name: PORT
               value: "3000"
+          envFrom:
+            # BFF runtime-only configuration. Do not expose these values as NEXT_PUBLIC_*.
+            - secretRef:
+                name: frontend-secrets
 
           # Probes simples para etapa de evaluación CI/CD
           readinessProbe:
