@@ -9,7 +9,7 @@ resources:
 
 images:
   - name: docker.io/retailfactory/backend-r7
-    newTag: b3fe449c
+    newTag: 915fbadb
 
 patches:
   - target:
