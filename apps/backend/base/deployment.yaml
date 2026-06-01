@@ -128,6 +128,146 @@ spec:
                   key: SSO_ALLOW_INSECURE_TOKEN_PARSE
                   optional: true
 
+            - name: FEL_PROVIDER
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_PROVIDER
+                  optional: true
+
+            - name: FEL_ENV
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_ENV
+                  optional: true
+
+            - name: FEL_EXTERNAL_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_EXTERNAL_ENABLED
+                  optional: true
+
+            - name: FEL_EXTERNAL_AUTO_CERTIFY
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_EXTERNAL_AUTO_CERTIFY
+                  optional: true
+
+            - name: FEL_ENABLE_FULL_CYCLE_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_ENABLE_FULL_CYCLE_ENDPOINT
+                  optional: true
+
+            - name: FEL_BLOCK_CHECKOUT_ON_XML_ERROR
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_BLOCK_CHECKOUT_ON_XML_ERROR
+                  optional: true
+
+            - name: FEL_INFILE_DRCWEB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_DRCWEB_URL
+                  optional: true
+
+            - name: FEL_INFILE_DRCWEB_ARCHIVO_MODE
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_DRCWEB_ARCHIVO_MODE
+                  optional: true
+
+            - name: FEL_INFILE_DRCCER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_DRCCER_URL
+                  optional: true
+
+            - name: FEL_INFILE_DRCCER_ANULACION_URL
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_DRCCER_ANULACION_URL
+                  optional: true
+
+            - name: FEL_INFILE_NIT_EMISOR
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_NIT_EMISOR
+                  optional: true
+
+            - name: FEL_INFILE_NOMBRE_EMISOR
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_NOMBRE_EMISOR
+                  optional: true
+
+            - name: FEL_INFILE_ALIAS
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_ALIAS
+                  optional: true
+
+            - name: FEL_INFILE_LLAVE
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_LLAVE
+                  optional: true
+
+            - name: FEL_INFILE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_TOKEN
+                  optional: true
+
+            - name: FEL_INFILE_CODIGO
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_CODIGO
+                  optional: true
+
+            - name: FEL_INFILE_CORREO_COPIA
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_CORREO_COPIA
+                  optional: true
+
+            - name: FEL_INFILE_FRASES
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_FRASES
+                  optional: true
+
+            - name: FEL_INFILE_CERT_AUTH_HEADER
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_CERT_AUTH_HEADER
+                  optional: true
+
+            - name: FEL_INFILE_CERT_AUTH_PREFIX
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_INFILE_CERT_AUTH_PREFIX
+                  optional: true
+
           readinessProbe:
             tcpSocket:
               port: 3000
