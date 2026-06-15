@@ -268,6 +268,55 @@ spec:
                   key: FEL_INFILE_CERT_AUTH_PREFIX
                   optional: true
 
+            - name: SAP01_SAP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SAP01_SAP_USERNAME
+                  optional: true
+
+            - name: SAP01_SAP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SAP01_SAP_PASSWORD
+                  optional: true
+
+            - name: SAP_HTTP_ALLOW_SELF_SIGNED
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SAP_HTTP_ALLOW_SELF_SIGNED
+                  optional: true
+
+            - name: SAP_SESSION_CACHE_TTL_SECONDS
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SAP_SESSION_CACHE_TTL_SECONDS
+                  optional: true
+
+            - name: SAP_WORKER_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SAP_WORKER_ENABLED
+                  optional: true
+
+            - name: SAP_WORKER_BATCH_SIZE
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SAP_WORKER_BATCH_SIZE
+                  optional: true
+
+            - name: SAP_WORKER_POLL_INTERVAL_MS
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SAP_WORKER_POLL_INTERVAL_MS
+                  optional: true
+
           readinessProbe:
             tcpSocket:
               port: 3000
