@@ -24,3 +24,11 @@ patches:
         value:
           name: SSO_MOCK_MODE
           value: "true"
+      - op: test
+        path: /spec/template/spec/containers/0/env/41/name
+        value: SAP_WORKER_ENABLED
+      - op: remove
+        path: /spec/template/spec/containers/0/env/41/valueFrom
+      - op: add
+        path: /spec/template/spec/containers/0/env/41/value
+        value: "true"
