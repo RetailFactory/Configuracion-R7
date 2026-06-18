@@ -76,9 +76,9 @@ kubectl -n r7-dev rollout status deployment/backend
 ## Ejecutar el seed SAP01
 
 Ejecute primero el flujo normal de migraciones de la version desplegada. El
-seed requiere las tablas de configuracion ERP y sincronizacion SAP, incluidas
-las migraciones `72_add_company_erp_configuration.sql` y
-`75_add_sap_sync_configuration.sql`.
+seed requiere las tablas de configuracion ERP y sincronizacion SAP. Si el
+ambiente puede contener nombres historicos en ingles, aplique tambien
+`89_reconcile_sap_spanish_schema_and_complete_operational_sync.sql`.
 
 Solo en dev/QA:
 
@@ -134,42 +134,42 @@ O revise la cola directamente:
 
 ```sql
 SELECT
-  event_id,
-  event_type,
-  r7_ref_type,
-  r7_ref_id,
-  status,
-  try_count,
-  max_retries,
-  next_retry_at,
-  last_error,
+  id_evento,
+  tipo_evento,
+  tipo_ref_r7,
+  id_ref_r7,
+  estado,
+  numero_intentos,
+  max_reintentos,
+  proximo_reintento_en,
+  mensaje_error,
   fyh_nrd,
   fyh_urd
-FROM sap_sync_event
+FROM sap_evento_sincronizacion
 WHERE cod_emp = 'SAP01'
 ORDER BY fyh_nrd DESC
 LIMIT 100;
 ```
 
 La trazabilidad e idempotencia del documento se revisan en
-`sap_document_link`:
+`sap_enlace_documento`:
 
 ```sql
 SELECT
-  link_id,
-  event_id,
-  r7_ref_type,
-  r7_ref_id,
+  id_enlace,
+  id_evento,
+  tipo_ref_r7,
+  id_ref_r7,
   sap_object,
   sap_doc_entry,
   sap_doc_num,
   sap_series,
-  sync_status,
-  try_count,
-  last_error,
+  estado_sincronizacion,
+  numero_intentos,
+  mensaje_error,
   fyh_nrd,
   fyh_urd
-FROM sap_document_link
+FROM sap_enlace_documento
 WHERE cod_emp = 'SAP01'
 ORDER BY fyh_nrd DESC
 LIMIT 100;
@@ -182,15 +182,28 @@ SAP Business One:
 
 | Mapeo | Tabla/campo |
 | --- | --- |
-| TaxCode para `IVA12` | `sap_tax_map.sap_tax_code` |
-| Series para `FACTURA` / `Invoices` | `sap_series_map.sap_series` |
-| WarehouseCode para `SAP01-DISP` | `sap_warehouse_map.sap_warehouse_code` |
-| CardCode del cliente por defecto o directo | `sap_customer_map.sap_card_code` |
-| PaymentMethod, cuenta, tarjeta o banco | `sap_payment_method_map` |
+| TaxCode para `IVA12` | `sap_mapeo_impuesto.sap_tax_code` |
+| Series para `FACTURA` / `Invoices` | `sap_mapeo_serie.sap_series` |
+| WarehouseCode para `SAP01-DISP` | `sap_mapeo_bodega.sap_warehouse_code` |
+| CardCode del cliente por defecto o directo | `sap_mapeo_cliente.sap_card_code` |
+| PaymentMethod, cuenta, tarjeta o banco | `sap_mapeo_metodo_pago` |
 
-Si SAP exige UDFs, configure `sap_udf_map`; no escriba nombres o valores UDF
+Si SAP exige UDFs, configure `sap_mapeo_udf`; no escriba nombres o valores UDF
 directamente en handlers. Los productos se relacionan con SAP mediante
 `inv_art_var.cod_sap`.
 
 Una factura SAP de venta ya afecta inventario. No genere adicionalmente un
 `InventoryGenExits` por la misma venta POS.
+
+## Panel operativo
+
+El frontend integrado expone `/administration/sap` para usuarios con
+`ADMIN_COMPANY_VIEW`. Discovery, aprobacion de bodegas, creacion/vinculacion y
+reintentos requieren `ADMIN_SYSTEM_CONFIG`.
+
+El navegador usa el BFF de mismo origen:
+
+- `/bff/integrations/sap/*`
+- `/bff/integrations/sap-sync/*`
+
+No se requieren variables frontend nuevas ni se exponen credenciales SAP.
