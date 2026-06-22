@@ -7,7 +7,7 @@ spec:
   project: r7-project
   source:
     repoURL: git@github.com:RetailFactory/Configuracion-R7.git
-    targetRevision: deploy/sap-integration-dev-20260622
+    targetRevision: 53d03a25fe151ccc8308ff46283fb602de46b8d4
     path: apps/frontend/overlays/dev
   destination:
     server: https://kubernetes.default.svc
