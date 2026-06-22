@@ -1,5 +1,7 @@
 # Integracion SAP Business One para SAP01
 
+Estado actualizado: 22 de junio de 2026.
+
 Esta guia aplica al backend R7 desplegado para `cod_emp=SAP01`. La URL de
 Service Layer y `CompanyDB` se almacenan en la configuracion de base de datos:
 
@@ -21,13 +23,14 @@ El deployment base lee todas estas variables de `backend-secrets` con
 | `SAP01_SAP_PASSWORD` | Password de Service Layer para SAP01 | Sin default; requerida para conexion real |
 | `SAP_HTTP_ALLOW_SELF_SIGNED` | Permite certificado autofirmado en pruebas | `false` |
 | `SAP_SESSION_CACHE_TTL_SECONDS` | TTL maximo de la sesion SAP en memoria | `1200` |
-| `SAP_WORKER_ENABLED` | Activa el polling asincrono de `sap_sync_event` | `false` |
+| `SAP_WORKER_ENABLED` | Activa el polling asincrono de `sap_evento_sincronizacion` | `false` |
 | `SAP_WORKER_BATCH_SIZE` | Maximo de eventos reclamados por ciclo | `10` |
 | `SAP_WORKER_POLL_INTERVAL_MS` | Intervalo entre ciclos del worker | `10000` |
 
-El overlay `dev` establece `SAP_WORKER_ENABLED="true"`. En QA y produccion la
-variable queda controlada por `backend-secrets`; si la clave no existe, el
-backend conserva el default `false`.
+El overlay `dev` establece `SAP_WORKER_ENABLED="true"`. El procesamiento solo
+ocurre si `sap_cfg_empresa.config.worker.enabled` tambien esta activo para la
+empresa. En QA y produccion la variable queda controlada por `backend-secrets`;
+si la clave no existe, el backend conserva el default `false`.
 
 Use `SAP_HTTP_ALLOW_SELF_SIGNED="true"` unicamente en dev/QA cuando el Service
 Layer de pruebas use un certificado autofirmado. No lo habilite en produccion.
@@ -75,10 +78,10 @@ kubectl -n r7-dev rollout status deployment/backend
 
 ## Ejecutar el seed SAP01
 
-Ejecute primero el flujo normal de migraciones de la version desplegada. El
-seed requiere las tablas de configuracion ERP y sincronizacion SAP, incluidas
-las migraciones `72_add_company_erp_configuration.sql` y
-`75_add_sap_sync_configuration.sql`.
+El dump actual ya contiene el contrato historico equivalente a `72`, `75` y
+`77`. En DEV se ejecuta `89_reconcile_sap_spanish_schema_and_complete_operational_sync.sql`
+y despues `90_realign_available_shared_catalog_sequences.sql`. En una base
+realmente vacia el orden es `72 SAP -> 75 SAP -> 77 SAP -> 89 -> 90`.
 
 Solo en dev/QA:
 
@@ -134,63 +137,100 @@ O revise la cola directamente:
 
 ```sql
 SELECT
-  event_id,
-  event_type,
-  r7_ref_type,
-  r7_ref_id,
-  status,
-  try_count,
-  max_retries,
-  next_retry_at,
-  last_error,
+  id_evento,
+  tipo_evento,
+  tipo_ref_r7,
+  id_ref_r7,
+  estado,
+  numero_intentos,
+  max_reintentos,
+  proximo_reintento_en,
+  mensaje_error,
   fyh_nrd,
   fyh_urd
-FROM sap_sync_event
+FROM sap_evento_sincronizacion
 WHERE cod_emp = 'SAP01'
 ORDER BY fyh_nrd DESC
 LIMIT 100;
 ```
 
 La trazabilidad e idempotencia del documento se revisan en
-`sap_document_link`:
+`sap_enlace_documento`:
 
 ```sql
 SELECT
-  link_id,
-  event_id,
-  r7_ref_type,
-  r7_ref_id,
+  id_enlace,
+  id_evento,
+  tipo_ref_r7,
+  id_ref_r7,
   sap_object,
   sap_doc_entry,
   sap_doc_num,
   sap_series,
-  sync_status,
-  try_count,
-  last_error,
+  estado_sincronizacion,
+  numero_intentos,
+  mensaje_error,
   fyh_nrd,
   fyh_urd
-FROM sap_document_link
+FROM sap_enlace_documento
 WHERE cod_emp = 'SAP01'
 ORDER BY fyh_nrd DESC
 LIMIT 100;
 ```
 
-## Mapeos pendientes
+## Discovery, provisioning y mapeos pendientes
+
+Los impuestos se leen de `SalesTaxCodes`. Las series se leen mediante
+`SeriesService_GetDocumentSeries`; el recurso `Series` no existe en este
+Service Layer.
+
+El provisioning de UDF y articulos es aditivo e idempotente:
+
+```bash
+SAP_PROVISION_ENABLED=true node dist/scripts/sap-provision.js \
+  --cod-emp SAP01 --item-group-code 100 --warehouse 01
+
+SAP_PROVISION_ENABLED=true node dist/scripts/sap-provision.js \
+  --cod-emp SAP01 --item-group-code 100 --warehouse 01 --apply
+```
 
 Antes de sincronizar documentos reales, complete con valores confirmados en
 SAP Business One:
 
 | Mapeo | Tabla/campo |
 | --- | --- |
-| TaxCode para `IVA12` | `sap_tax_map.sap_tax_code` |
-| Series para `FACTURA` / `Invoices` | `sap_series_map.sap_series` |
-| WarehouseCode para `SAP01-DISP` | `sap_warehouse_map.sap_warehouse_code` |
-| CardCode del cliente por defecto o directo | `sap_customer_map.sap_card_code` |
-| PaymentMethod, cuenta, tarjeta o banco | `sap_payment_method_map` |
+| TaxCode para `IVA` | `sap_mapeo_impuesto.sap_tax_code` |
+| Series para factura/notas | `sap_mapeo_serie.sap_series` |
+| WarehouseCode para `SAP01-DISP` | `sap_mapeo_bodega.sap_warehouse_code` |
+| CardCode del cliente por defecto o directo | `sap_mapeo_cliente.sap_card_code` |
+| PaymentMethod, cuenta, tarjeta o banco | `sap_mapeo_metodo_pago` |
 
-Si SAP exige UDFs, configure `sap_udf_map`; no escriba nombres o valores UDF
+Tarjeta ya tiene un mapping descubierto. Efectivo sigue inactivo hasta que
+finanzas SAP apruebe una cuenta contable activa; no se debe inventar ese codigo.
+
+Si SAP exige UDFs, configure `sap_mapeo_udf`; no escriba nombres o valores UDF
 directamente en handlers. Los productos se relacionan con SAP mediante
 `inv_art_var.cod_sap`.
 
 Una factura SAP de venta ya afecta inventario. No genere adicionalmente un
 `InventoryGenExits` por la misma venta POS.
+
+## Jenkins, Argo CD, Kong y frontend
+
+Jenkins construye las imagenes de backend/frontend. Los tags inmutables se
+declaran en `apps/*/overlays/dev`; Argo CD sincroniza y Kubernetes realiza el
+rollout. Kong ya enruta `/api` al backend y `/` al frontend.
+
+```text
+Frontend DEV: http://98.85.131.168:32047/
+Panel SAP:    http://98.85.131.168:32047/administration/sap
+Health API:   http://98.85.131.168:32047/api/v1/health
+```
+
+```bash
+kubectl -n argocd get applications r7-root backend-dev frontend-dev
+kubectl -n r7-dev rollout status deployment/backend
+kubectl -n r7-dev rollout status deployment/frontend
+kubectl -n r7-dev get deploy backend frontend \
+  -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.template.spec.containers[0].image}{"\n"}{end}'
+```
