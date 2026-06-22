@@ -78,10 +78,15 @@ kubectl -n r7-dev rollout status deployment/backend
 
 ## Ejecutar el seed SAP01
 
-El dump actual ya contiene el contrato historico equivalente a `72`, `75` y
-`77`. En DEV se ejecuta `89_reconcile_sap_spanish_schema_and_complete_operational_sync.sql`
-y despues `90_realign_available_shared_catalog_sequences.sql`. En una base
-realmente vacia el orden es `72 SAP -> 75 SAP -> 77 SAP -> 89 -> 90`.
+Los exports actualizados el 22 de junio ya contienen el resultado estructural
+de `72`, `75`, `77` y `89`. Despues de una restauracion completa se reejecuta
+`89_reconcile_sap_spanish_schema_and_complete_operational_sync.sql` como
+convergencia idempotente y despues
+`90_realign_available_shared_catalog_sequences.sql`. En una base realmente
+vacia el orden es `72 SAP -> 75 SAP -> 77 SAP -> 89 -> 90`.
+
+`temp/tablasr7.sql` aun contiene regiones `-- missing source code`; no debe
+tratarse como respaldo integral hasta regenerar/completar el schema dump.
 
 Solo en dev/QA:
 
