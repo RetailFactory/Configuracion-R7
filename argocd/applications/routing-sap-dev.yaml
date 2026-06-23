@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: routing-sap-dev
+  namespace: argocd
+spec:
+  project: r7-project
+  source:
+    repoURL: https://github.com/RetailFactory/Configuracion-R7.git
+    targetRevision: deploy/sap-integration-dev-20260622
+    path: apps/routing/overlays/sap-dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: r7-sap-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

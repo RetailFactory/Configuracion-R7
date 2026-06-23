@@ -236,21 +236,23 @@ Argo CD usa apps nuevas:
 
 - `backend-sap-dev` -> `apps/backend/overlays/sap-dev` -> namespace `r7-sap-dev`
 - `frontend-sap-dev` -> `apps/frontend/overlays/sap-dev` -> namespace `r7-sap-dev`
+- `routing-sap-dev` -> `apps/routing/overlays/sap-dev` -> Kong host dedicado
 
 Kong actual expone `/api` y `/` para el ambiente DEV normal en `32047`. Para no
-competir con ese Ingress, `sap-dev` usa Services `NodePort` propios:
+competir con ese Ingress, `sap-dev` usa un host dedicado en el mismo Kong:
 
 ```text
 Frontend DEV actual: http://98.85.131.168:32047/
-Frontend SAP DEV:    http://98.85.131.168:32048/
-Panel SAP aislado:   http://98.85.131.168:32048/administration/sap
-API SAP DEV:         http://98.85.131.168:32049/api/v1/health
+Frontend SAP DEV:    http://sap-dev.98.85.131.168.nip.io:32047/
+Panel SAP aislado:   http://sap-dev.98.85.131.168.nip.io:32047/administration/sap
+API SAP DEV:         http://sap-dev.98.85.131.168.nip.io:32047/api/v1/health
 ```
 
 ```bash
-kubectl -n argocd get applications backend-sap-dev frontend-sap-dev
+kubectl -n argocd get applications backend-sap-dev frontend-sap-dev routing-sap-dev
 kubectl -n r7-sap-dev rollout status deployment/backend
 kubectl -n r7-sap-dev rollout status deployment/frontend
+kubectl -n r7-sap-dev get ingress r7-sap
 kubectl -n r7-sap-dev get svc backend frontend
 kubectl -n r7-sap-dev get deploy backend frontend \
   -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.template.spec.containers[0].image}{"\n"}{end}'
