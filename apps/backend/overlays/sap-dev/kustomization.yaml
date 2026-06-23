@@ -1,15 +1,14 @@
-
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: r7-dev
+namespace: r7-sap-dev
 
 resources:
   - ../../base
 
 images:
   - name: docker.io/retailfactory/backend-r7
-    newTag: 3233ed55
+    newTag: 9e6704b3
 
 patches:
   - target:
@@ -31,4 +30,14 @@ patches:
         path: /spec/template/spec/containers/0/env/41/valueFrom
       - op: add
         path: /spec/template/spec/containers/0/env/41/value
-        value: "true"
+        value: "false"
+  - target:
+      kind: Service
+      name: backend
+    patch: |-
+      - op: replace
+        path: /spec/type
+        value: NodePort
+      - op: add
+        path: /spec/ports/0/nodePort
+        value: 32049

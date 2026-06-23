@@ -2,8 +2,9 @@
 
 Estado actualizado: 22 de junio de 2026.
 
-Esta guia aplica al backend R7 desplegado para `cod_emp=SAP01`. La URL de
-Service Layer y `CompanyDB` se almacenan en la configuracion de base de datos:
+Esta guia aplica al backend R7 desplegado para `cod_emp=SAP01` en el ambiente
+aislado `r7-sap-dev`. La URL de Service Layer y `CompanyDB` se almacenan en la
+configuracion de base de datos:
 
 - Service Layer: `https://200.12.40.202:50500/b1s/v1/`
 - CompanyDB: `TEST_SBOTODOCALZA_`
@@ -27,10 +28,12 @@ El deployment base lee todas estas variables de `backend-secrets` con
 | `SAP_WORKER_BATCH_SIZE` | Maximo de eventos reclamados por ciclo | `10` |
 | `SAP_WORKER_POLL_INTERVAL_MS` | Intervalo entre ciclos del worker | `10000` |
 
-El overlay `dev` establece `SAP_WORKER_ENABLED="true"`. El procesamiento solo
-ocurre si `sap_cfg_empresa.config.worker.enabled` tambien esta activo para la
-empresa. En QA y produccion la variable queda controlada por `backend-secrets`;
-si la clave no existe, el backend conserva el default `false`.
+El overlay aislado `sap-dev` establece `SAP_WORKER_ENABLED="false"` para evitar
+que una build nueva escriba documentos reales en SAP sin una activacion
+operativa explicita. El procesamiento solo ocurre si la variable de entorno y
+`sap_cfg_empresa.config.worker.enabled` tambien estan activos para la empresa.
+En QA y produccion la variable queda controlada por `backend-secrets`; si la
+clave no existe, el backend conserva el default `false`.
 
 Use `SAP_HTTP_ALLOW_SELF_SIGNED="true"` unicamente en dev/QA cuando el Service
 Layer de pruebas use un certificado autofirmado. No lo habilite en produccion.
@@ -43,7 +46,7 @@ terminal autorizada y reemplace los placeholders al momento de ejecutarlos.
 Ejemplo solicitado para crear/aplicar las credenciales:
 
 ```bash
-kubectl -n r7-dev create secret generic backend-secrets \
+kubectl -n r7-sap-dev create secret generic backend-secrets \
   --from-literal=SAP01_SAP_USERNAME='<usuario>' \
   --from-literal=SAP01_SAP_PASSWORD='<password>' \
   --dry-run=client -o yaml | kubectl apply -f -
@@ -55,7 +58,7 @@ administra con un manifiesto que incluya todas sus claves, actualice solo las
 claves SAP para no reconstruir ni perder las demas:
 
 ```bash
-kubectl -n r7-dev patch secret backend-secrets \
+kubectl -n r7-sap-dev patch secret backend-secrets \
   --type merge \
   --patch '{"stringData":{"SAP01_SAP_USERNAME":"<usuario>","SAP01_SAP_PASSWORD":"<password>"}}'
 ```
@@ -63,7 +66,7 @@ kubectl -n r7-dev patch secret backend-secrets \
 Los controles opcionales tambien pueden administrarse en el Secret:
 
 ```bash
-kubectl -n r7-dev patch secret backend-secrets \
+kubectl -n r7-sap-dev patch secret backend-secrets \
   --type merge \
   --patch '{"stringData":{"SAP_SESSION_CACHE_TTL_SECONDS":"1200","SAP_WORKER_BATCH_SIZE":"10","SAP_WORKER_POLL_INTERVAL_MS":"10000"}}'
 ```
@@ -72,8 +75,8 @@ Despues de actualizar el Secret, reinicie el deployment para que el proceso
 reciba los nuevos valores:
 
 ```bash
-kubectl -n r7-dev rollout restart deployment/backend
-kubectl -n r7-dev rollout status deployment/backend
+kubectl -n r7-sap-dev rollout restart deployment/backend
+kubectl -n r7-sap-dev rollout status deployment/backend
 ```
 
 ## Ejecutar el seed SAP01
@@ -117,16 +120,18 @@ no deben aparecer password, cookies `B1SESSION`/`ROUTEID` ni otros secretos.
 
 ## Activar y revisar el worker
 
-Dev ya activa el worker en
-`apps/backend/overlays/dev/kustomization.yaml`. Para QA o produccion, agregue
-`SAP_WORKER_ENABLED="true"` a `backend-secrets` y reinicie el deployment. El
-worker procesa la cola de forma asincrona; checkout solo encola y SAP no
+`sap-dev` deja el worker apagado por defecto en
+`apps/backend/overlays/sap-dev/kustomization.yaml`. Para una prueba comercial
+controlada, cambie temporalmente el valor a `true` o agregue
+`SAP_WORKER_ENABLED="true"` a `backend-secrets` si el overlay no lo sobreescribe,
+active tambien `sap_cfg_empresa.config.worker.enabled` y reinicie el deployment.
+El worker procesa la cola de forma asincrona; checkout solo encola y SAP no
 bloquea la venta.
 
 Verifique los logs sin buscar ni imprimir credenciales:
 
 ```bash
-kubectl -n r7-dev logs deployment/backend --since=15m \
+kubectl -n r7-sap-dev logs deployment/backend --since=15m \
   | grep 'integration.sap_sync.worker'
 ```
 
@@ -220,22 +225,33 @@ directamente en handlers. Los productos se relacionan con SAP mediante
 Una factura SAP de venta ya afecta inventario. No genere adicionalmente un
 `InventoryGenExits` por la misma venta POS.
 
-## Jenkins, Argo CD, Kong y frontend
+## Jenkins, Argo CD, exposicion y frontend
 
-Jenkins construye las imagenes de backend/frontend. Los tags inmutables se
-declaran en `apps/*/overlays/dev`; Argo CD sincroniza y Kubernetes realiza el
-rollout. Kong ya enruta `/api` al backend y `/` al frontend.
+SAP se despliega separado de las apps DEV existentes. No use `backend-dev`,
+`frontend-dev` ni el Ingress `/` actual para validar SAP. Jenkins debe construir
+imagenes desde pipelines nuevos de la rama `Integracion-Sap` y actualizar solo
+los overlays `apps/*/overlays/sap-dev`.
+
+Argo CD usa apps nuevas:
+
+- `backend-sap-dev` -> `apps/backend/overlays/sap-dev` -> namespace `r7-sap-dev`
+- `frontend-sap-dev` -> `apps/frontend/overlays/sap-dev` -> namespace `r7-sap-dev`
+
+Kong actual expone `/api` y `/` para el ambiente DEV normal en `32047`. Para no
+competir con ese Ingress, `sap-dev` usa Services `NodePort` propios:
 
 ```text
-Frontend DEV: http://98.85.131.168:32047/
-Panel SAP:    http://98.85.131.168:32047/administration/sap
-Health API:   http://98.85.131.168:32047/api/v1/health
+Frontend DEV actual: http://98.85.131.168:32047/
+Frontend SAP DEV:    http://98.85.131.168:32048/
+Panel SAP aislado:   http://98.85.131.168:32048/administration/sap
+API SAP DEV:         http://98.85.131.168:32049/api/v1/health
 ```
 
 ```bash
-kubectl -n argocd get applications r7-root backend-dev frontend-dev
-kubectl -n r7-dev rollout status deployment/backend
-kubectl -n r7-dev rollout status deployment/frontend
-kubectl -n r7-dev get deploy backend frontend \
+kubectl -n argocd get applications backend-sap-dev frontend-sap-dev
+kubectl -n r7-sap-dev rollout status deployment/backend
+kubectl -n r7-sap-dev rollout status deployment/frontend
+kubectl -n r7-sap-dev get svc backend frontend
+kubectl -n r7-sap-dev get deploy backend frontend \
   -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.template.spec.containers[0].image}{"\n"}{end}'
 ```

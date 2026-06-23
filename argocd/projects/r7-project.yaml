@@ -12,6 +12,8 @@ spec:
   destinations:
     - namespace: r7-dev
       server: https://kubernetes.default.svc
+    - namespace: r7-sap-dev
+      server: https://kubernetes.default.svc
     - namespace: r7-qa
       server: https://kubernetes.default.svc
     - namespace: r7-prod
