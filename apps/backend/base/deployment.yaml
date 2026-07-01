@@ -14,8 +14,6 @@ spec:
       labels:
         app: backend
     spec:
-      imagePullSecrets:
-        - name: regcred
       containers:
         - name: backend
           image: docker.io/retailfactory/backend-r7:latest
