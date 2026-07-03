@@ -9,7 +9,7 @@ resources:
 
 images:
   - name: docker.io/retailfactory/backend-r7
-    newTag: offline-v1
+    newTag: e4a2fe43
 
 patches:
   - target:
