@@ -8,7 +8,7 @@ resources:
 
 images:
   - name: docker.io/retailfactory/frontend-r7
-    newTag: 61bc8cea
+    newTag: 03d19eb3
 
 patches:
   - target:
