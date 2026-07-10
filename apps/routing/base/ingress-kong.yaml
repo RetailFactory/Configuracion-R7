@@ -4,6 +4,7 @@ metadata:
   name: r7
   annotations:
     konghq.com/strip-path: "false"
+    konghq.com/plugins: r7-csv-import-request-size
 spec:
   ingressClassName: kong
   rules:

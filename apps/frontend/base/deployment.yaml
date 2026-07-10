@@ -25,6 +25,14 @@ spec:
               value: "production"
             - name: PORT
               value: "3000"
+            - name: NEXT_PUBLIC_CSV_IMPORT_MAX_FILE_SIZE_BYTES
+              value: "1073741824"
+            - name: NEXT_PUBLIC_CSV_IMPORT_CHUNK_SIZE_BYTES
+              value: "8388608"
+            - name: NEXT_PUBLIC_CSV_IMPORT_ASYNC_THRESHOLD_BYTES
+              value: "10485760"
+            - name: BFF_CSV_IMPORT_CHUNK_TIMEOUT_MS
+              value: "300000"
           envFrom:
             # BFF runtime-only configuration. Do not expose these values as NEXT_PUBLIC_*.
             - secretRef:

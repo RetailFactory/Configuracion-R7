@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-csv-import-worker
+  labels:
+    app: backend-csv-import-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-csv-import-worker
+  template:
+    metadata:
+      labels:
+        app: backend-csv-import-worker
+    spec:
+      containers:
+        - name: csv-import-worker
+          image: docker.io/retailfactory/backend-r7:latest
+          imagePullPolicy: IfNotPresent
+          command: ["npm", "run", "start:worker"]
+          envFrom:
+            - secretRef:
+                name: backend-secrets
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: CSV_IMPORT_STORAGE_PATH
+              value: "/var/lib/r7/csv-imports"
+            - name: CSV_IMPORT_MAX_FILE_SIZE_BYTES
+              value: "1073741824"
+            - name: CSV_IMPORT_DEFAULT_CHUNK_SIZE_BYTES
+              value: "8388608"
+            - name: CSV_IMPORT_ASYNC_THRESHOLD_BYTES
+              value: "10485760"
+            - name: CSV_IMPORT_QUEUE_CONCURRENCY
+              value: "1"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+          volumeMounts:
+            - name: csv-imports
+              mountPath: /var/lib/r7/csv-imports
+      volumes:
+        - name: csv-imports
+          persistentVolumeClaim:
+            claimName: csv-imports

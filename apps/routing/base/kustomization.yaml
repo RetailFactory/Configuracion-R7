@@ -3,3 +3,4 @@ kind: Kustomization
 
 resources:
   - ingress-kong.yaml
+  - kong-csv-import-request-size.yaml

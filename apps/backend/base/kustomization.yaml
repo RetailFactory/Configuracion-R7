@@ -3,4 +3,6 @@ kind: Kustomization
 
 resources:
   - deployment.yaml
+  - deployment-csv-import-worker.yaml
+  - csv-imports-pvc.yaml
   - service.yaml
