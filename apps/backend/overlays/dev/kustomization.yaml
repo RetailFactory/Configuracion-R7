@@ -6,6 +6,7 @@ namespace: r7-dev
 
 resources:
   - ../../base
+  - sap-service-layer-ca.configmap.yaml
 
 images:
   - name: docker.io/retailfactory/backend-r7
@@ -25,10 +26,45 @@ patches:
           name: SSO_MOCK_MODE
           value: "true"
       - op: test
-        path: /spec/template/spec/containers/0/env/41/name
+        path: /spec/template/spec/containers/0/env/46/name
         value: SAP_WORKER_ENABLED
       - op: remove
-        path: /spec/template/spec/containers/0/env/41/valueFrom
+        path: /spec/template/spec/containers/0/env/46/valueFrom
       - op: add
-        path: /spec/template/spec/containers/0/env/41/value
-        value: "true"
+        path: /spec/template/spec/containers/0/env/46/value
+        value: "false"
+      - op: test
+        path: /spec/template/spec/containers/0/env/44/name
+        value: SAP_HTTP_ALLOW_SELF_SIGNED
+      - op: remove
+        path: /spec/template/spec/containers/0/env/44/valueFrom
+      - op: add
+        path: /spec/template/spec/containers/0/env/44/value
+        value: "false"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: NODE_EXTRA_CA_CERTS
+          value: /etc/r7/certs/sap-service-layer-ca.crt
+      - op: add
+        path: /spec/template/spec/containers/0/volumeMounts
+        value:
+          - name: sap-service-layer-ca
+            mountPath: /etc/r7/certs/sap-service-layer-ca.crt
+            subPath: sap-service-layer-ca.crt
+            readOnly: true
+      - op: add
+        path: /spec/template/spec/hostAliases
+        value:
+          - ip: "200.12.40.202"
+            hostnames:
+              - ip-192-168-101-6
+      - op: add
+        path: /spec/template/spec/volumes
+        value:
+          - name: sap-service-layer-ca
+            configMap:
+              name: sap-service-layer-ca
+              items:
+                - key: sap-service-layer-ca.crt
+                  path: sap-service-layer-ca.crt
