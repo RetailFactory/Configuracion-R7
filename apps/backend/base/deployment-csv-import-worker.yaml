@@ -18,7 +18,7 @@ spec:
         - name: csv-import-worker
           image: docker.io/retailfactory/backend-r7:latest
           imagePullPolicy: IfNotPresent
-          command: ["npm", "run", "start:worker"]
+          command: ["npm", "run", "start:worker:prod"]
           envFrom:
             - secretRef:
                 name: backend-secrets
