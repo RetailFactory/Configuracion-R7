@@ -6,7 +6,7 @@ metadata:
 spec:
   description: Proyecto GitOps para Frontend-R7 y Backend-R7
   sourceRepos:
-    - git@github.com:RetailFactory/Configuracion-R7.git
+    - https://github.com/RetailFactory/Configuracion-R7.git
     # Si usarás HTTPS para repo:
     # - 'https://github.com/TU_ORG/Configuracion-R7.git'
   destinations:
