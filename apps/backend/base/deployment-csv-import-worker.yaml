@@ -14,6 +14,12 @@ spec:
       labels:
         app: backend-csv-import-worker
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: csv-import-worker
           image: docker.io/retailfactory/backend-r7:latest
