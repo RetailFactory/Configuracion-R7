@@ -47,12 +47,12 @@ patches:
           name: NODE_EXTRA_CA_CERTS
           value: /etc/r7/certs/sap-service-layer-ca.crt
       - op: add
-        path: /spec/template/spec/containers/0/volumeMounts
+        path: /spec/template/spec/containers/0/volumeMounts/-
         value:
-          - name: sap-service-layer-ca
-            mountPath: /etc/r7/certs/sap-service-layer-ca.crt
-            subPath: sap-service-layer-ca.crt
-            readOnly: true
+          name: sap-service-layer-ca
+          mountPath: /etc/r7/certs/sap-service-layer-ca.crt
+          subPath: sap-service-layer-ca.crt
+          readOnly: true
       - op: add
         path: /spec/template/spec/hostAliases
         value:
@@ -60,11 +60,11 @@ patches:
             hostnames:
               - ip-192-168-101-6
       - op: add
-        path: /spec/template/spec/volumes
+        path: /spec/template/spec/volumes/-
         value:
-          - name: sap-service-layer-ca
-            configMap:
-              name: sap-service-layer-ca
-              items:
-                - key: sap-service-layer-ca.crt
-                  path: sap-service-layer-ca.crt
+          name: sap-service-layer-ca
+          configMap:
+            name: sap-service-layer-ca
+            items:
+              - key: sap-service-layer-ca.crt
+                path: sap-service-layer-ca.crt
