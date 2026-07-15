@@ -59,6 +59,12 @@ spec:
             - name: CSV_IMPORT_CHUNK_TIMEOUT_MS
               value: "300000"
 
+            - name: CSV_IMPORT_ROW_HEARTBEAT_EVERY_ROWS
+              value: "100"
+
+            - name: CSV_IMPORT_STALLED_AFTER_SECONDS
+              value: "180"
+
             - name: RABBITMQ_URL
               valueFrom:
                 secretKeyRef:

@@ -41,6 +41,10 @@ spec:
               value: "10485760"
             - name: CSV_IMPORT_QUEUE_CONCURRENCY
               value: "1"
+            - name: CSV_IMPORT_ROW_HEARTBEAT_EVERY_ROWS
+              value: "100"
+            - name: CSV_IMPORT_STALLED_AFTER_SECONDS
+              value: "180"
           resources:
             requests:
               cpu: "250m"
