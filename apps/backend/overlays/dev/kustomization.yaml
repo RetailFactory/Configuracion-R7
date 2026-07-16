@@ -12,6 +12,30 @@ images:
     newTag: 9b793215
 
 patches:
+  # kustomize ignora `$patch: replace` en items de env (el valueFrom del base
+  # sobrevive), por eso estos dos overrides van como JSON6902 por indice con
+  # op:test de guarda, igual que el overlay sap-dev. Si el env del base cambia
+  # de orden, el build falla en el op:test en lugar de desplegar mal.
+  - target:
+      kind: Deployment
+      name: backend
+    patch: |-
+      - op: test
+        path: /spec/template/spec/containers/0/env/46/name
+        value: SAP_HTTP_ALLOW_SELF_SIGNED
+      - op: remove
+        path: /spec/template/spec/containers/0/env/46/valueFrom
+      - op: add
+        path: /spec/template/spec/containers/0/env/46/value
+        value: "false"
+      - op: test
+        path: /spec/template/spec/containers/0/env/48/name
+        value: SAP_WORKER_ENABLED
+      - op: remove
+        path: /spec/template/spec/containers/0/env/48/valueFrom
+      - op: add
+        path: /spec/template/spec/containers/0/env/48/value
+        value: "false"
   - target:
       kind: Deployment
       name: backend
@@ -33,14 +57,6 @@ patches:
                 env:
                   - name: SSO_MOCK_MODE
                     value: "true"
-                  - name: SAP_WORKER_ENABLED
-                    $patch: replace
-                    name: SAP_WORKER_ENABLED
-                    value: "false"
-                  - name: SAP_HTTP_ALLOW_SELF_SIGNED
-                    $patch: replace
-                    name: SAP_HTTP_ALLOW_SELF_SIGNED
-                    value: "false"
                   - name: NODE_EXTRA_CA_CERTS
                     value: /etc/r7/certs/sap-service-layer-ca.crt
                 volumeMounts:
