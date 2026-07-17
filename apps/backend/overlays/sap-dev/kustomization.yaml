@@ -66,7 +66,7 @@ patches:
         path: /spec/template/spec/containers/0/env/41/valueFrom
       - op: add
         path: /spec/template/spec/containers/0/env/41/value
-        value: "true"
+        value: "false"
   - target:
       kind: Service
       name: backend
