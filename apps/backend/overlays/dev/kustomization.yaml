@@ -21,20 +21,20 @@ patches:
       name: backend
     patch: |-
       - op: test
-        path: /spec/template/spec/containers/0/env/46/name
+        path: /spec/template/spec/containers/0/env/54/name
         value: SAP_HTTP_ALLOW_SELF_SIGNED
       - op: remove
-        path: /spec/template/spec/containers/0/env/46/valueFrom
+        path: /spec/template/spec/containers/0/env/54/valueFrom
       - op: add
-        path: /spec/template/spec/containers/0/env/46/value
+        path: /spec/template/spec/containers/0/env/54/value
         value: "false"
       - op: test
-        path: /spec/template/spec/containers/0/env/48/name
+        path: /spec/template/spec/containers/0/env/56/name
         value: SAP_WORKER_ENABLED
       - op: remove
-        path: /spec/template/spec/containers/0/env/48/valueFrom
+        path: /spec/template/spec/containers/0/env/56/valueFrom
       - op: add
-        path: /spec/template/spec/containers/0/env/48/value
+        path: /spec/template/spec/containers/0/env/56/value
         value: "true"
   - target:
       kind: Deployment

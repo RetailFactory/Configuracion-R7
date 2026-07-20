@@ -14,6 +14,7 @@ spec:
       labels:
         app: backend
     spec:
+      terminationGracePeriodSeconds: 60
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001
@@ -31,6 +32,22 @@ spec:
               value: "production"
             - name: PORT
               value: "3000"
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=768"
+            - name: SYNC_BOOTSTRAP_PAGE_MAX_ROWS
+              value: "250"
+            - name: SYNC_BOOTSTRAP_PAGE_MAX_BYTES
+              value: "65536"
+            - name: SYNC_BOOTSTRAP_MAX_SESSIONS
+              value: "12"
+            - name: SYNC_BOOTSTRAP_MAX_SESSIONS_PER_DEVICE
+              value: "1"
+            - name: SYNC_BOOTSTRAP_SESSION_TTL_SECONDS
+              value: "7200"
+            - name: SYNC_BOOTSTRAP_MAX_SNAPSHOT_BYTES
+              value: "1073741824"
+            - name: SYNC_BOOTSTRAP_PAGE_TIMEOUT_MS
+              value: "30000"
 
             - name: DATABASE_URL
               valueFrom:
@@ -342,24 +359,35 @@ spec:
                   key: SAP_WORKER_POLL_INTERVAL_MS
                   optional: true
 
+          startupProbe:
+            httpGet:
+              path: /api/v1/sync/connectivity
+              port: 3000
+            periodSeconds: 5
+            failureThreshold: 24
+            timeoutSeconds: 3
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /api/v1/sync/connectivity
               port: 3000
-            initialDelaySeconds: 10
             periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 3
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /api/v1/sync/connectivity
               port: 3000
-            initialDelaySeconds: 20
             periodSeconds: 15
+            failureThreshold: 4
+            timeoutSeconds: 3
 
           resources:
             requests:
               cpu: "100m"
-              memory: "128Mi"
+              memory: "384Mi"
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: "1000m"
+              memory: "1Gi"
           volumeMounts:
             - name: csv-imports
               mountPath: /var/lib/r7/csv-imports
