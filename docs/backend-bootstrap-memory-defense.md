@@ -6,7 +6,9 @@ en PostgreSQL; estos valores son una defensa adicional, no el fix primario.
 
 - `NODE_OPTIONS=--max-old-space-size=768`
 - request `384Mi`, limit `1Gi` (margen para heap, RSS, buffers y runtime)
-- páginas: 250 filas / 65,536 bytes
+- páginas: 250 filas / objetivo normal de 65,536 bytes
+- fila individual: máximo duro de 1,048,576 bytes; una fila que supera el
+  objetivo de página se entrega sola sin elevar el tamaño de todas las páginas
 - 12 sesiones globales, 1 por empresa/dispositivo
 - TTL 7,200 segundos, máximo temporal 1 GiB por snapshot
 - timeout de página 30 segundos

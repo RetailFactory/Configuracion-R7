@@ -38,6 +38,8 @@ spec:
               value: "250"
             - name: SYNC_BOOTSTRAP_PAGE_MAX_BYTES
               value: "65536"
+            - name: SYNC_BOOTSTRAP_ROW_MAX_BYTES
+              value: "1048576"
             - name: SYNC_BOOTSTRAP_MAX_SESSIONS
               value: "12"
             - name: SYNC_BOOTSTRAP_MAX_SESSIONS_PER_DEVICE
