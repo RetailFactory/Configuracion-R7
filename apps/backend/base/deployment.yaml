@@ -102,6 +102,31 @@ spec:
                   name: backend-secrets
                   key: JWT_PUBLIC_KEY
 
+            - name: GIFT_CARD_AUTHORIZATION_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: GIFT_CARD_AUTHORIZATION_PRIVATE_KEY
+
+            - name: GIFT_CARD_AUTHORIZATION_PUBLIC_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: GIFT_CARD_AUTHORIZATION_PUBLIC_KEYS
+
+            - name: GIFT_CARD_AUTHORIZATION_ACTIVE_KID
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: GIFT_CARD_AUTHORIZATION_ACTIVE_KID
+                  optional: true
+
+            - name: GIFT_CARD_AUTHORIZED_TTL_SECONDS
+              value: "600"
+
+            - name: GIFT_CARD_COMMITTING_TTL_SECONDS
+              value: "86400"
+
             - name: SSO_PROVIDER_NAME
               valueFrom:
                 secretKeyRef:
