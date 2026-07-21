@@ -386,6 +386,13 @@ spec:
                   key: SAP_WORKER_POLL_INTERVAL_MS
                   optional: true
 
+            - name: FEL_CONTINGENCY_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: FEL_CONTINGENCY_ENABLED
+                  optional: true
+
           startupProbe:
             httpGet:
               path: /api/v1/sync/connectivity
