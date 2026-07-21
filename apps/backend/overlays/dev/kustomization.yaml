@@ -9,7 +9,7 @@ resources:
 
 images:
   - name: docker.io/retailfactory/backend-r7
-    newTag: 4f729fc0
+    newTag: 51911fa4
 
 patches:
   # kustomize ignora `$patch: replace` en items de env (el valueFrom del base
