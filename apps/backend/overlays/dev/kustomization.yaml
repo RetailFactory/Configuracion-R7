@@ -71,3 +71,15 @@ patches:
                   items:
                     - key: sap-service-layer-ca.crt
                       path: sap-service-layer-ca.crt
+  - target:
+      kind: Service
+      name: backend
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: backend
+        annotations:
+          konghq.com/read-timeout: "240000"
+          konghq.com/write-timeout: "240000"
+          konghq.com/retries: "0"
