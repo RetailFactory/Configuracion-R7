@@ -33,6 +33,8 @@ spec:
               value: "10485760"
             - name: BFF_CSV_IMPORT_CHUNK_TIMEOUT_MS
               value: "300000"
+            - name: BFF_SYNC_BOOTSTRAP_TIMEOUT_MS
+              value: "300000"
           envFrom:
             # BFF runtime-only configuration. Do not expose these values as NEXT_PUBLIC_*.
             - secretRef:
