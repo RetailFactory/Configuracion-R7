@@ -30,5 +30,5 @@ kubectl -n r7-dev get secret backend-secrets \
   -o go-template='{{if index .data "FEL_CONTINGENCY_ENABLED"}}present{{else}}missing{{end}}{{"\n"}}'
 ```
 
-Antes de generar el EXE, confirme que las migraciones 139 y 140 existan en
+Antes de generar el EXE, confirme que las migraciones 139, 140 y 145 existan en
 Cloud y en el Host, y que el rango de la sucursal esté `ACTIVE`.
