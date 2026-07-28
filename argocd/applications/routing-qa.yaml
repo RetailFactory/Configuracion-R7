@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: frontend-qa
+  name: routing-qa
   namespace: argocd
 spec:
   project: r7-project
   source:
     repoURL: https://github.com/RetailFactory/Configuracion-R7.git
     targetRevision: deploy/qa
-    path: apps/frontend/overlays/qa
+    path: apps/routing/overlays/qa
   destination:
     server: https://kubernetes.default.svc
     namespace: r7-qa

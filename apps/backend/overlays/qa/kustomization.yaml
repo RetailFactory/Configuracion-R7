@@ -5,16 +5,86 @@ namespace: r7-qa
 
 resources:
   - ../../base
+  - sap-service-layer-ca.configmap.yaml
 
 images:
   - name: docker.io/retailfactory/backend-r7
-    newTag: qa-initial
+    newTag: 1fa22804
 
 patches:
+  # Los índices se validan antes de reemplazar valueFrom para evitar que un
+  # cambio en el deployment base active una variable equivocada.
   - target:
       kind: Deployment
       name: backend
     patch: |-
+      - op: test
+        path: /spec/template/spec/containers/0/env/60/name
+        value: SAP_HTTP_ALLOW_SELF_SIGNED
+      - op: remove
+        path: /spec/template/spec/containers/0/env/60/valueFrom
+      - op: add
+        path: /spec/template/spec/containers/0/env/60/value
+        value: "false"
+      - op: test
+        path: /spec/template/spec/containers/0/env/62/name
+        value: SAP_WORKER_ENABLED
+      - op: remove
+        path: /spec/template/spec/containers/0/env/62/valueFrom
+      - op: add
+        path: /spec/template/spec/containers/0/env/62/value
+        value: "false"
+  - target:
+      kind: Deployment
+      name: backend
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: backend
+      spec:
+        replicas: 1
+        template:
+          spec:
+            hostAliases:
+              - ip: "200.12.40.202"
+                hostnames:
+                  - ip-192-168-101-6
+            containers:
+              - name: backend
+                env:
+                  - name: SSO_MOCK_MODE
+                    value: "true"
+                  - name: NODE_EXTRA_CA_CERTS
+                    value: /etc/r7/certs/sap-service-layer-ca.crt
+                volumeMounts:
+                  - name: sap-service-layer-ca
+                    mountPath: /etc/r7/certs/sap-service-layer-ca.crt
+                    subPath: sap-service-layer-ca.crt
+                    readOnly: true
+            volumes:
+              - name: sap-service-layer-ca
+                configMap:
+                  name: sap-service-layer-ca
+                  items:
+                    - key: sap-service-layer-ca.crt
+                      path: sap-service-layer-ca.crt
+  - target:
+      kind: Deployment
+      name: backend-csv-import-worker
+    patch: |-
       - op: replace
         path: /spec/replicas
         value: 1
+  - target:
+      kind: Service
+      name: backend
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: backend
+        annotations:
+          konghq.com/read-timeout: "240000"
+          konghq.com/write-timeout: "240000"
+          konghq.com/retries: "0"
