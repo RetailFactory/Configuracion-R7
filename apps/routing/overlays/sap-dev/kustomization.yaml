@@ -3,5 +3,4 @@ kind: Kustomization
 
 namespace: r7-sap-dev
 
-resources:
-  - ingress-kong-sap.yaml
+resources: []

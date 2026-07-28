@@ -17,14 +17,4 @@ patches:
     patch: |-
       - op: replace
         path: /spec/replicas
-        value: 1
-  - target:
-      kind: Service
-      name: frontend
-    patch: |-
-      - op: replace
-        path: /spec/type
-        value: NodePort
-      - op: add
-        path: /spec/ports/0/nodePort
-        value: 32048
+        value: 0
