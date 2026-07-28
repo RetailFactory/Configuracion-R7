@@ -53,6 +53,10 @@ Snapshot previo al estacionamiento del 2026-07-28:
 - Backend: `docker.io/retailfactory/backend-r7:2fa09b46`.
 - Frontend: `docker.io/retailfactory/frontend-r7:f7f68f44`.
 - URL previa: `http://sap-dev.98.85.131.168.nip.io:32047`.
+- Como la ruta ordinaria de DEV es deliberadamente hostless, `routing-dev`
+  mantiene una ruta de terminación sin upstream para ese hostname y devuelve
+  HTTP 410. Esto evita que el hostname estacionado caiga por error en DEV sin
+  crear pods ni restaurar un Ingress dentro de `r7-sap-dev`.
 - Jobs conservados: `Backend-R7-CI-Integracion-Sap-20260622` y
   `Frontend-R7-CI-Integracion-Sap-20260622`.
 

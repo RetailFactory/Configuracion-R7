@@ -5,3 +5,5 @@ namespace: r7-dev
 
 resources:
   - ../../base
+  - ingress-kong-sap-dev-parked.yaml
+  - kong-sap-dev-parked.yaml
