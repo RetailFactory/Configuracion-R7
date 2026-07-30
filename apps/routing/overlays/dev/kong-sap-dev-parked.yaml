@@ -1,0 +1,8 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: sap-dev-parked
+plugin: request-termination
+config:
+  status_code: 410
+  message: SAP-dev environment is parked

@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sap-dev-parked
+  annotations:
+    konghq.com/plugins: sap-dev-parked
+spec:
+  ingressClassName: kong
+  rules:
+    - host: sap-dev.98.85.131.168.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
