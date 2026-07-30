@@ -7,7 +7,8 @@
 - GitOps: rama `deploy/qa`.
 - Argo: `backend-qa`, `frontend-qa` y `routing-qa`.
 - URL: `http://qa.98.85.131.168.nip.io:32047`.
-- PostgreSQL y credenciales externas: compartidos con DEV.
+- PostgreSQL: base aislada `r7qadb` en la misma instancia PostgreSQL de DEV.
+- Credenciales e integraciones externas: compartidas con DEV.
 - Redis: mismo servidor y credencial que DEV, pero QA usa el DB lógico `1`.
 - Worker CSV: una réplica permanente en QA.
 
@@ -15,9 +16,16 @@ Los jobs QA solo publican imágenes. El despliegue se realiza con un commit
 GitOps que actualiza los tags correspondientes en `deploy/qa`; nunca deben
 modificar el overlay de DEV.
 
-QA no ofrece aislamiento de datos ni de migraciones. Toda migración futura debe
-ser retrocompatible y coordinarse con DEV. Una operación QA también puede
-certificar en FEL o producir eventos SAP sobre los datos compartidos.
+`r7qadb` fue creada el 2026-07-30 desde un `pg_dump` consistente de `r7devdb`.
+La copia conserva datos, esquemas, extensiones, propietarios, ACL y secuencias
+del punto de respaldo. Desde el corte, los cambios de datos y migraciones de QA
+ya no afectan `r7devdb`; una promoción futura de migraciones debe seguir
+coordinándose con DEV.
+
+El aislamiento de PostgreSQL no aísla los servicios externos. Una operación QA
+todavía puede certificar en FEL o producir eventos SAP. Por eso
+`SAP_WORKER_ENABLED` debe permanecer en `false` en QA salvo el relevo controlado
+descrito abajo.
 
 ## Propiedad del worker SAP
 
@@ -77,8 +85,10 @@ La prueba mínima de un despliegue QA es:
 3. Tag idéntico en `deploy/qa`.
 4. Aplicación Argo `Synced` y `Healthy`.
 5. Deployment y pod Ready con la imagen esperada.
-6. HTTP 200 en `/` y `/api/v1/health`.
-7. DEV mantiene su worker SAP activo y SAP-dev continúa sin pods.
+6. El secreto y el pod de QA resuelven `DATABASE_URL` hacia `r7qadb`, mientras
+   DEV continúa usando `r7devdb`.
+7. HTTP 200 en `/` y `/api/v1/health`.
+8. DEV mantiene su worker SAP activo y SAP-dev continúa sin pods.
 
 Si QA causa presión de recursos, fallas de cola o regresiones, escalar los tres
 deployments QA a cero o revertir el último commit de `deploy/qa`. No reducir
