@@ -33,7 +33,7 @@ patches:
         path: /spec/template/spec/containers/0/env/62/valueFrom
       - op: add
         path: /spec/template/spec/containers/0/env/62/value
-        value: "false"
+        value: "true"
   - target:
       kind: Deployment
       name: backend
@@ -76,6 +76,27 @@ patches:
       - op: replace
         path: /spec/replicas
         value: 1
+  # El worker CSV importa indirectamente SapSyncModule. Como usa envFrom sobre
+  # backend-secrets, estas dos variables deben quedar bloqueadas explícitamente
+  # para que nunca se convierta en un segundo consumidor de la cola SAP.
+  - target:
+      kind: Deployment
+      name: backend-csv-import-worker
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: backend-csv-import-worker
+      spec:
+        template:
+          spec:
+            containers:
+              - name: csv-import-worker
+                env:
+                  - name: SAP_HTTP_ALLOW_SELF_SIGNED
+                    value: "false"
+                  - name: SAP_WORKER_ENABLED
+                    value: "false"
   - target:
       kind: Service
       name: backend
