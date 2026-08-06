@@ -71,6 +71,27 @@ patches:
                   items:
                     - key: sap-service-layer-ca.crt
                       path: sap-service-layer-ca.crt
+  # El worker CSV importa indirectamente SapSyncModule y hereda backend-secrets
+  # mediante envFrom. Mantener estas variables explícitas evita que se convierta
+  # en un segundo consumidor de la cola SAP sin desactivar las importaciones CSV.
+  - target:
+      kind: Deployment
+      name: backend-csv-import-worker
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: backend-csv-import-worker
+      spec:
+        template:
+          spec:
+            containers:
+              - name: csv-import-worker
+                env:
+                  - name: SAP_HTTP_ALLOW_SELF_SIGNED
+                    value: "false"
+                  - name: SAP_WORKER_ENABLED
+                    value: "false"
   - target:
       kind: Service
       name: backend
