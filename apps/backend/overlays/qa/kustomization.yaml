@@ -9,7 +9,7 @@ resources:
 
 images:
   - name: docker.io/retailfactory/backend-r7
-    newTag: 7d53ee51
+    newTag: 165cd1d5
 
 patches:
   # Los índices se validan antes de reemplazar valueFrom para evitar que un
