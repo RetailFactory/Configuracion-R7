@@ -8,7 +8,7 @@ metadata:
 spec:
   ingressClassName: kong
   rules:
-    - host: qa.98.85.131.168.nip.io
+    - host: qar7.retailtecno.com
       http:
         paths:
           - path: /api
