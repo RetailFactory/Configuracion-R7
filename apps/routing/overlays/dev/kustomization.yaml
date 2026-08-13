@@ -7,3 +7,12 @@ resources:
   - ../../base
   - ingress-kong-sap-dev-parked.yaml
   - kong-sap-dev-parked.yaml
+
+patches:
+  - target:
+      kind: Ingress
+      name: r7
+    patch: |-
+      - op: add
+        path: /spec/rules/0/host
+        value: devr7.retailtecno.com
