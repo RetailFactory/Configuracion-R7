@@ -21,6 +21,22 @@ spec:
         runAsGroup: 1001
         fsGroup: 1001
         fsGroupChangePolicy: OnRootMismatch
+      # Post-deploy gate for the non-transactional customer-search operation.
+      # The application pod cannot become available until missing/invalid
+      # concurrent indexes have been repaired and verified.
+      initContainers:
+        - name: reconcile-customer-search-indexes
+          image: docker.io/retailfactory/backend-r7:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - node
+            - dist/scripts/reconcile-customer-search-indexes.js
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: DATABASE_URL
       containers:
         - name: backend
           image: docker.io/retailfactory/backend-r7:latest
