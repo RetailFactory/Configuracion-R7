@@ -79,6 +79,26 @@ spec:
                   name: backend-secrets
                   key: REDIS_URL
 
+            - name: POWERBI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: POWERBI_API_KEY
+
+            - name: POWERBI_COD_EMP
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: POWERBI_COD_EMP
+                  optional: true
+
+            - name: POWERBI_ALLOWED_COMPANIES
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: POWERBI_ALLOWED_COMPANIES
+                  optional: true
+
             - name: CSV_IMPORT_STORAGE_PATH
               value: "/var/lib/r7/csv-imports"
 
