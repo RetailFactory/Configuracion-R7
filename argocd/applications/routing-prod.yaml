@@ -1,19 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: backend-prod
+  name: routing-prod
   namespace: argocd
 spec:
   project: r7-project
   source:
     repoURL: https://github.com/RetailFactory/Configuracion-R7.git
     targetRevision: deploy/prod
-    path: apps/backend/overlays/prod
+    path: apps/routing/overlays/prod
   destination:
     server: https://kubernetes.default.svc
     namespace: r7-prod
   syncPolicy:
-    # Manual a proposito: PROD nunca se sincroniza solo. Sync manual y
-    # aprobado unicamente, ver plan de implementacion PROD seccion 4.
+    # Manual a proposito, igual que backend-prod y frontend-prod: PROD nunca
+    # se sincroniza solo.
     syncOptions:
       - CreateNamespace=true

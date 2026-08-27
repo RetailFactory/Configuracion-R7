@@ -7,7 +7,7 @@ spec:
   project: r7-project
   source:
     repoURL: https://github.com/RetailFactory/Configuracion-R7.git
-    targetRevision: main
+    targetRevision: deploy/prod
     path: apps/frontend/overlays/prod
   destination:
     server: https://kubernetes.default.svc
