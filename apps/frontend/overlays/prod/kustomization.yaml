@@ -10,7 +10,7 @@ images:
   - name: docker.io/retailfactory/frontend-r7
     # Último tag activo en deploy/qa al 2026-08-27, mismo criterio que el
     # backend.
-    newTag: 73237a7e
+    newTag: ec25b964
 
 patches:
   - target:
