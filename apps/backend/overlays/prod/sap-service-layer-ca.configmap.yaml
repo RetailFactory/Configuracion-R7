@@ -1,13 +1,15 @@
-# PENDIENTE (stopper #2 del plan, 01_PROGRESO.md seccion B): falta el certificado
-# CA real del Service Layer SAP productivo (SBORIMET), pedido al cliente.
+# Stopper #2 del plan CERRADO 2026-08-27. CA real del Service Layer SAP
+# productivo (SBORIMET), obtenido directamente del servidor via TLS handshake
+# de solo lectura (openssl s_client -showcerts contra 200.12.40.202:50500,
+# el host+puerto de comandos_conexiones.txt). Cero credenciales usadas para
+# obtenerlo: es el certificado que el servidor presenta a cualquier cliente
+# durante el handshake, informacion publica por diseno de TLS.
 #
-# El certificado de abajo es un self-signed generado localmente (openssl),
-# SINTACTICAMENTE VALIDO como PEM (Node.js lo carga sin error via
-# NODE_EXTRA_CA_CERTS) pero CRIPTOGRAFICAMENTE INUTIL para SAP real. Permite
-# que el pod arranque y quede Ready sin depender de SAP, y cuando el backend
-# intente conectar de verdad al Service Layer productivo, la conexion TLS
-# fallara de forma visible en los logs de la app (CA no reconocida) en vez
-# de tumbar el pod entero al inicio con contenido invalido.
+# Self-signed, CN=ip-192-168-101-6 (coincide exacto con el hostAliases de
+# este overlay: 200.12.40.202 -> ip-192-168-101-6), SHA256 fingerprint
+# 31:1D:D3:22:92:83:BC:17:6A:98:FA:12:79:9A:71:FF:4B:B2:41:DF:07:33:6E:1F:
+# BE:33:72:BF:08:EF:7A:7A, vigente 2025-07-28 a 2027-10-30 (cubre el evento
+# de septiembre 2026 con margen).
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -15,24 +17,28 @@ metadata:
 data:
   sap-service-layer-ca.crt: |
     -----BEGIN CERTIFICATE-----
-    MIIDlzCCAn+gAwIBAgIUFT5ORJp8bc3AiHE8HAxjs7MCnDwwDQYJKoZIhvcNAQEL
-    BQAwWzEvMC0GA1UEAwwmUEVORElFTlRFLUNBLXJlYWwtZGVsLWNsaWVudGUtU0JP
-    UklNRVQxKDAmBgNVBAoMH1BMQUNFSE9MREVSLU5PLVVTQVItRU4tU0FQLVJFQUww
-    HhcNMjYwODI3MTc1NzQ5WhcNMjYwODI4MTc1NzQ5WjBbMS8wLQYDVQQDDCZQRU5E
-    SUVOVEUtQ0EtcmVhbC1kZWwtY2xpZW50ZS1TQk9SSU1FVDEoMCYGA1UECgwfUExB
-    Q0VIT0xERVItTk8tVVNBUi1FTi1TQVAtUkVBTDCCASIwDQYJKoZIhvcNAQEBBQAD
-    ggEPADCCAQoCggEBAJZSJ2gV0FkgvZoGDRxfime5BVIysmlnPv286/y7dsAE2HhV
-    7AHsUtA6NCHKiUMOaO3LXce2PBAd2OiHgXsJLROXf1fUaQE+n90ZF6zDJiEteydW
-    2tDrXmnzSFAm8AbXELNxrI6hI0OSKeShjH9KhfpR/nHndwuTIAxqXo5Cr3d1s47o
-    RZi+vQ+Rk0QuRpDEVtXoMrFgsl2fXb8pXCnnSD0HmfCDHA2xMiJfinZKWgyKfnvU
-    q9gXlfIsMTECjqdEbRAMc9BRo93RmS7rxHpNHfJRBENYKujGoQ0zo8JSsH0scPtn
-    NSWV+5lr5357mcqRUHDT/WJj1lHMr0TH9tW4Pv0CAwEAAaNTMFEwHQYDVR0OBBYE
-    FDpArC6YXRQp9AmLMafElyMUTnn6MB8GA1UdIwQYMBaAFDpArC6YXRQp9AmLMafE
-    lyMUTnn6MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBABp0sicN
-    fL1RrspldS2HaX2+FgRq00oDjaOkPYFtNbAYuBMoHCyad2qiBBQRWNJtq4zK8FDW
-    mTYKaM9iQGqTm+e3mQ2OsofnJZPVGJmu/hFRTN4ZGucavKz8q3qK97J9dJTpA5BB
-    rIJci4lAn0dRVrj+yPzfG0PvUmN7hLV3m/9vhfbZUAajrlMNnPXibmrKvtysil1O
-    60GPq8JWvzZQEZ2TdOLxV/YRc2aj1qIuzUg1iMqgVJUquhBGDSRv/RYDTHbprnGA
-    4FutfDfueKoBpqIxozppsKKXjlY1s+swu/TalAc+ZiSqMXsMrgZUdqYBi47t9x2a
-    Vlxn42oe4XK/KRM=
+    MIIEcDCCAtigAwIBAgIJAOaoNcPf45VLMA0GCSqGSIb3DQEBCwUAMEMxCzAJBgNV
+    BAYTAkNOMQwwCgYDVQQKEwNTQVAxCzAJBgNVBAsTAkIxMRkwFwYDVQQDExBpcC0x
+    OTItMTY4LTEwMS02MB4XDTI1MDcyODIwMzU1OVoXDTI3MTAzMDIwMzU1OVowQzEL
+    MAkGA1UEBhMCQ04xDDAKBgNVBAoTA1NBUDELMAkGA1UECxMCQjExGTAXBgNVBAMT
+    EGlwLTE5Mi0xNjgtMTAxLTYwggGiMA0GCSqGSIb3DQEBAQUAA4IBjwAwggGKAoIB
+    gQC2+a3kjHOphXMPwzw/RiDuvXa7lE5wYZKn+wS1YLPoEk1X33SyefpXHls/OJwg
+    0b2xXh2IKJy3acEw8Aoxcg1xz4sBdfIZdLY4VRBmzh1bQBSCPhpfXh6u2cvuUGka
+    bjeSJF7j1dhnb3Ac2/QMNN8ogv4IcBW1dWgkmJWq91jZ4elQk4jrv7o3YZY+OKWI
+    oqwHYP906jlcO62AKTpsJohLeVAGs+4ZHdBFs11KkM347vW0/7IOAVcRJZj2WjC0
+    EoGFpMjJp4i6Fulm0vERehWaTqWrmiy4I34BcwutLK9psF5GHu4uc3uc9wQ6aKZJ
+    3TRmG/CvnC/boxd2UGoL9dEiwwGHEn78kvFNwh7F4QPlh4D4UF0tPRUWES3AUN6s
+    YNnA8zQ64PA/zE+RE1OFqxv4HBkRk2nliMuJ+dMc/VTc5KmwiFCDEWKom5TrNe7a
+    kPLwxxbMpoBQ5Kzz5hf1FGdrQvqf4iEW1T3Zzg5JE7oh5cxfKknsgSJRqIHw5tpI
+    bysCAwEAAaNnMGUwHQYDVR0OBBYEFEOl1xt+HezGW5mPJebAs+VfxZCuMCEGA1Ud
+    EQQaMBiCEGlwLTE5Mi0xNjgtMTAxLTaHBMCoZQYwDAYDVR0TBAUwAwEB/zATBgNV
+    HSUEDDAKBggrBgEFBQcDATANBgkqhkiG9w0BAQsFAAOCAYEARIcbditHuHlKigWC
+    uo7wDBJYYwLxFJz9rOmU5FBHKHV4iXyADJ4lLWLQ4brcjYkTuqIRSuQEaReqT7YU
+    R9gj/0pOz+WV4ZvSmqpYyFQ3f7D7jMOMTFcJvJKlP52mqbD9CYGwXzd24LhT76D0
+    I3t8iLY86UmZIqKxi0aYTDb1TtcspoSqCufoh6rgJ3JdP0irJ1FfcIDn66s8aSbq
+    AF/ys4pRpC6fG69cAydudzEo7bvQdT0q6fVukmX0S2g7bsqXTeaiYirettSYTgmw
+    +xEplkEkWe8Kt0CB3ALPKuS/C0/KQ1M+EmGLrGwgvogbeXWbQoOOunrbViWAU56z
+    k5jYBqyf12JQyRicEkgAYn/hcNF7LgiUsCVpuDrH62+yPSK8WkqITA4PbhFdd76J
+    sLS62CjE/GQXvNQCM2jZPPEdkFb+hJ4PAd3cPpn6EwJSPEBvE7UGT7VmdNc3d8x5
+    LNF1YBpL+CMdcGZ9D6fjr7Q8xkeFOzE05swGgNNddXMK5NcY
     -----END CERTIFICATE-----
