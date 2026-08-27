@@ -12,6 +12,17 @@ images:
     newTag: 3671873d
 
 patches:
+  - target:
+      kind: Deployment
+      name: backend
+    patch: |-
+      - op: add
+        path: /spec/strategy
+        value:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 0
+            maxUnavailable: 1
   # Los índices se validan antes de reemplazar valueFrom para evitar que un
   # cambio en el deployment base active una variable equivocada.
   - target:
