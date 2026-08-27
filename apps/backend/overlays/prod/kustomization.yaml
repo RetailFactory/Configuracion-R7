@@ -14,7 +14,7 @@ images:
     # del usuario ("toma el ultimo activo en QA, si hace falta lo
     # actualizamos despues"). Verificado en vivo contra deploy/qa antes de
     # copiarlo, y que QA seguía sano con ese build (/api/v1/health).
-    newTag: 3671873d
+    newTag: d7b073e8
 
 patches:
   # Estrategia de rollout heredada de deploy/qa (commit "avoid backend
