@@ -10,12 +10,11 @@ resources:
 
 images:
   - name: docker.io/retailfactory/backend-r7
-    # PENDIENTE: stopper #4 del plan (01_PROGRESO.md §B) — tag validado y
-    # aceptado de QA para promover a PROD. NO es una decisión técnica, es de
-    # negocio (qué build se acepta). Al momento de escribir esto, deploy/qa
-    # tiene 3671873d corriendo; NO asumir que ese es el tag aceptado sin
-    # confirmación explícita.
-    newTag: PENDIENTE-TAG-QA-VALIDADO
+    # Último tag activo en deploy/qa al 2026-08-27, por instrucción directa
+    # del usuario ("toma el ultimo activo en QA, si hace falta lo
+    # actualizamos despues"). Verificado en vivo contra deploy/qa antes de
+    # copiarlo, y que QA seguía sano con ese build (/api/v1/health).
+    newTag: 3671873d
 
 patches:
   # Estrategia de rollout heredada de deploy/qa (commit "avoid backend
