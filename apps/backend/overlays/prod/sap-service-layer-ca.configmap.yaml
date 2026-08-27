@@ -1,8 +1,13 @@
-# PENDIENTE (stopper #2 del plan, 01_PROGRESO.md §B): falta el certificado CA
-# real del Service Layer SAP productivo (SBORIMET), pedido al cliente.
-# El placeholder de abajo es intencionalmente inválido como PEM — si alguien
-# aplica este ConfigMap sin reemplazarlo, el backend falla la conexión TLS a
-# SAP de forma visible (error de certificado), no en silencio.
+# PENDIENTE (stopper #2 del plan, 01_PROGRESO.md seccion B): falta el certificado
+# CA real del Service Layer SAP productivo (SBORIMET), pedido al cliente.
+#
+# El certificado de abajo es un self-signed generado localmente (openssl),
+# SINTACTICAMENTE VALIDO como PEM (Node.js lo carga sin error via
+# NODE_EXTRA_CA_CERTS) pero CRIPTOGRAFICAMENTE INUTIL para SAP real. Permite
+# que el pod arranque y quede Ready sin depender de SAP, y cuando el backend
+# intente conectar de verdad al Service Layer productivo, la conexion TLS
+# fallara de forma visible en los logs de la app (CA no reconocida) en vez
+# de tumbar el pod entero al inicio con contenido invalido.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -10,5 +15,24 @@ metadata:
 data:
   sap-service-layer-ca.crt: |
     -----BEGIN CERTIFICATE-----
-    PENDIENTE-CA-REAL-DEL-SERVICE-LAYER-PRODUCTIVO-SBORIMET
+    MIIDlzCCAn+gAwIBAgIUFT5ORJp8bc3AiHE8HAxjs7MCnDwwDQYJKoZIhvcNAQEL
+    BQAwWzEvMC0GA1UEAwwmUEVORElFTlRFLUNBLXJlYWwtZGVsLWNsaWVudGUtU0JP
+    UklNRVQxKDAmBgNVBAoMH1BMQUNFSE9MREVSLU5PLVVTQVItRU4tU0FQLVJFQUww
+    HhcNMjYwODI3MTc1NzQ5WhcNMjYwODI4MTc1NzQ5WjBbMS8wLQYDVQQDDCZQRU5E
+    SUVOVEUtQ0EtcmVhbC1kZWwtY2xpZW50ZS1TQk9SSU1FVDEoMCYGA1UECgwfUExB
+    Q0VIT0xERVItTk8tVVNBUi1FTi1TQVAtUkVBTDCCASIwDQYJKoZIhvcNAQEBBQAD
+    ggEPADCCAQoCggEBAJZSJ2gV0FkgvZoGDRxfime5BVIysmlnPv286/y7dsAE2HhV
+    7AHsUtA6NCHKiUMOaO3LXce2PBAd2OiHgXsJLROXf1fUaQE+n90ZF6zDJiEteydW
+    2tDrXmnzSFAm8AbXELNxrI6hI0OSKeShjH9KhfpR/nHndwuTIAxqXo5Cr3d1s47o
+    RZi+vQ+Rk0QuRpDEVtXoMrFgsl2fXb8pXCnnSD0HmfCDHA2xMiJfinZKWgyKfnvU
+    q9gXlfIsMTECjqdEbRAMc9BRo93RmS7rxHpNHfJRBENYKujGoQ0zo8JSsH0scPtn
+    NSWV+5lr5357mcqRUHDT/WJj1lHMr0TH9tW4Pv0CAwEAAaNTMFEwHQYDVR0OBBYE
+    FDpArC6YXRQp9AmLMafElyMUTnn6MB8GA1UdIwQYMBaAFDpArC6YXRQp9AmLMafE
+    lyMUTnn6MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBABp0sicN
+    fL1RrspldS2HaX2+FgRq00oDjaOkPYFtNbAYuBMoHCyad2qiBBQRWNJtq4zK8FDW
+    mTYKaM9iQGqTm+e3mQ2OsofnJZPVGJmu/hFRTN4ZGucavKz8q3qK97J9dJTpA5BB
+    rIJci4lAn0dRVrj+yPzfG0PvUmN7hLV3m/9vhfbZUAajrlMNnPXibmrKvtysil1O
+    60GPq8JWvzZQEZ2TdOLxV/YRc2aj1qIuzUg1iMqgVJUquhBGDSRv/RYDTHbprnGA
+    4FutfDfueKoBpqIxozppsKKXjlY1s+swu/TalAc+ZiSqMXsMrgZUdqYBi47t9x2a
+    Vlxn42oe4XK/KRM=
     -----END CERTIFICATE-----
