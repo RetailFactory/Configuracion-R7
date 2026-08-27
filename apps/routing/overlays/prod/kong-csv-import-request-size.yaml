@@ -1,0 +1,8 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: r7-csv-import-request-size
+plugin: request-size-limiting
+config:
+  allowed_payload_size: 32
+  size_unit: megabytes

@@ -1,0 +1,14 @@
+# PENDIENTE (stopper #2 del plan, 01_PROGRESO.md §B): falta el certificado CA
+# real del Service Layer SAP productivo (SBORIMET), pedido al cliente.
+# El placeholder de abajo es intencionalmente inválido como PEM — si alguien
+# aplica este ConfigMap sin reemplazarlo, el backend falla la conexión TLS a
+# SAP de forma visible (error de certificado), no en silencio.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sap-service-layer-ca
+data:
+  sap-service-layer-ca.crt: |
+    -----BEGIN CERTIFICATE-----
+    PENDIENTE-CA-REAL-DEL-SERVICE-LAYER-PRODUCTIVO-SBORIMET
+    -----END CERTIFICATE-----

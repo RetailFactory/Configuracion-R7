@@ -5,16 +5,143 @@ namespace: r7-prod
 
 resources:
   - ../../base
+  - sap-service-layer-ca.configmap.yaml
 
 images:
   - name: docker.io/retailfactory/backend-r7
-    newTag: prod-initial
+    # PENDIENTE: stopper #4 del plan (01_PROGRESO.md §B) — tag validado y
+    # aceptado de QA para promover a PROD. NO es una decisión técnica, es de
+    # negocio (qué build se acepta). Al momento de escribir esto, deploy/qa
+    # tiene 3671873d corriendo; NO asumir que ese es el tag aceptado sin
+    # confirmación explícita.
+    newTag: PENDIENTE-TAG-QA-VALIDADO
 
 patches:
+  # Estrategia de rollout heredada de deploy/qa (commit "avoid backend
+  # rollout quota surge"): con maxSurge:0 nunca se piden recursos para 3
+  # pods a la vez durante un update, solo para 1 (una réplica vieja se baja
+  # antes de subir la nueva) — importante en el nodo compartido sin nodo
+  # dedicado (ver plan §7.1).
   - target:
       kind: Deployment
       name: backend
     patch: |-
-      - op: replace
-        path: /spec/replicas
-        value: 2
+      - op: add
+        path: /spec/strategy
+        value:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 0
+            maxUnavailable: 1
+  # Los índices se validan antes de reemplazar valueFrom para evitar que un
+  # cambio en el deployment base active una variable equivocada. Verificados
+  # en vivo contra deploy/qa el 2026-08-27 (NO confiar en un número viejo:
+  # main ya tiene 63/65 por 3 variables POWERBI_* nuevas que deploy/qa
+  # todavía no tiene).
+  - target:
+      kind: Deployment
+      name: backend
+    patch: |-
+      - op: test
+        path: /spec/template/spec/containers/0/env/60/name
+        value: SAP_HTTP_ALLOW_SELF_SIGNED
+      - op: remove
+        path: /spec/template/spec/containers/0/env/60/valueFrom
+      - op: add
+        path: /spec/template/spec/containers/0/env/60/value
+        value: "false"
+      - op: test
+        path: /spec/template/spec/containers/0/env/62/name
+        value: SAP_WORKER_ENABLED
+      - op: remove
+        path: /spec/template/spec/containers/0/env/62/valueFrom
+      - op: add
+        path: /spec/template/spec/containers/0/env/62/value
+        value: "true"
+  - target:
+      kind: Deployment
+      name: backend
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: backend
+      spec:
+        # 1 réplica al arrancar, no 2 (a diferencia del esqueleto original).
+        # Subir a 2 solo después de que la prueba P15 (15 cajas concurrentes,
+        # cero facturas SAP duplicadas con el lease del worker) salga limpia
+        # en el ensayo de T-1 semana — ver plan §11 P4.
+        replicas: 1
+        template:
+          metadata:
+            labels:
+              app: backend
+          spec:
+            priorityClassName: r7-prod-critical
+            # PENDIENTE: IP/host reales del Service Layer productivo cuando
+            # el cliente los confirme (hoy usa el mismo host que dev/qa como
+            # placeholder — sap_cfg_empresa en BD es la fuente de verdad real
+            # para la URL, esto es solo resolución DNS/hosts a nivel de pod).
+            hostAliases:
+              - ip: "200.12.40.202"
+                hostnames:
+                  - ip-192-168-101-6
+            containers:
+              - name: backend
+                env:
+                  # Sin SSO_MOCK_MODE a propósito (a diferencia de dev/qa):
+                  # PROD no debe mockear SSO. Ver plan §6.1.
+                  - name: NODE_OPTIONS
+                    value: "--max-old-space-size=1536"
+                  - name: NODE_EXTRA_CA_CERTS
+                    value: /etc/r7/certs/sap-service-layer-ca.crt
+                resources:
+                  requests:
+                    cpu: "500m"
+                    memory: "1Gi"
+                  limits:
+                    cpu: "2000m"
+                    memory: "2Gi"
+                volumeMounts:
+                  - name: sap-service-layer-ca
+                    mountPath: /etc/r7/certs/sap-service-layer-ca.crt
+                    subPath: sap-service-layer-ca.crt
+                    readOnly: true
+            volumes:
+              - name: sap-service-layer-ca
+                configMap:
+                  name: sap-service-layer-ca
+                  items:
+                    - key: sap-service-layer-ca.crt
+                      path: sap-service-layer-ca.crt
+  - target:
+      kind: Deployment
+      name: backend-csv-import-worker
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: backend-csv-import-worker
+      spec:
+        template:
+          spec:
+            priorityClassName: r7-prod-critical
+            containers:
+              - name: csv-import-worker
+                env:
+                  - name: SAP_HTTP_ALLOW_SELF_SIGNED
+                    value: "false"
+                  - name: SAP_WORKER_ENABLED
+                    value: "false"
+  - target:
+      kind: Service
+      name: backend
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: backend
+        annotations:
+          konghq.com/read-timeout: "240000"
+          konghq.com/write-timeout: "240000"
+          konghq.com/retries: "0"

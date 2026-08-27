@@ -8,13 +8,31 @@ resources:
 
 images:
   - name: docker.io/retailfactory/frontend-r7
-    newTag: prod-initial
+    # PENDIENTE: mismo stopper #4 que el backend — tag de negocio, no técnico.
+    newTag: PENDIENTE-TAG-QA-VALIDADO
 
 patches:
   - target:
       kind: Deployment
       name: frontend
     patch: |-
-      - op: replace
-        path: /spec/replicas
-        value: 2
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: frontend
+      spec:
+        # 1 réplica al arrancar, igual que el backend — ver nota en
+        # apps/backend/overlays/prod/kustomization.yaml.
+        replicas: 1
+        template:
+          spec:
+            priorityClassName: r7-prod-critical
+            containers:
+              - name: frontend
+                resources:
+                  requests:
+                    cpu: "250m"
+                    memory: "512Mi"
+                  limits:
+                    cpu: "1000m"
+                    memory: "1Gi"

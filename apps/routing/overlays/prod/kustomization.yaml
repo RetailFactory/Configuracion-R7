@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: r7-prod
+
+resources:
+  - kong-csv-import-request-size.yaml
+  - ingress-kong-prod.yaml
