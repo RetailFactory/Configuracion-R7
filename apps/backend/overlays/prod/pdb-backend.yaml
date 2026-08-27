@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend-pdb
+spec:
+  # minAvailable:1 protege incluso con 1 sola replica (que es como PROD
+  # arranca, ver kustomization.yaml): bloquea una eviccion voluntaria
+  # (drain, actualizacion de nodo) que dejaria el backend en cero. Sigue
+  # teniendo sentido cuando se suba a 2 replicas tras la prueba P15.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: backend

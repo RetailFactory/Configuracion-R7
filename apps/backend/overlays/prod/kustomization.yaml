@@ -6,6 +6,7 @@ namespace: r7-prod
 resources:
   - ../../base
   - sap-service-layer-ca.configmap.yaml
+  - pdb-backend.yaml
 
 images:
   - name: docker.io/retailfactory/backend-r7
