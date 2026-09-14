@@ -40,9 +40,11 @@ spec:
             - secretRef:
                 name: frontend-secrets
 
-          # Probes simples para etapa de evaluación CI/CD
+          # El puerto puede quedar abierto aunque Next.js falle al resolver rutas.
+          # Validar una página real evita enviar tráfico a un frontend con HTTP 500.
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /login
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 10
