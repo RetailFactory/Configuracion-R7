@@ -76,6 +76,8 @@ patches:
                         key: CATALOG_KEY
                   - name: R7_PULSE_INC_ENABLED
                     value: "true"
+                  - name: R7_PULSE_SELF_SERVICE_ENABLED
+                    value: "true"
                   - name: R7_PULSE_INC_COMPANY
                     value: "224"
                   - name: R7_PULSE_INC_STORE_IDS
