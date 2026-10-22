@@ -59,6 +59,45 @@ patches:
                     value: "true"
                   - name: NODE_EXTRA_CA_CERTS
                     value: /etc/r7/certs/sap-service-layer-ca.crt
+                  # PULSE pilot (company 224). Keys live in secret r7-pulse-keys, created out of Git.
+                  # Trusts only the k3s pod CIDR (Kong); the app still ignores x-forwarded-proto from other peers.
+                  - name: R7_TRUSTED_PROXIES
+                    value: 10.42.0.0/16
+                  - name: R7_PULSE_CATALOG_ENABLED
+                    value: "true"
+                  - name: R7_PULSE_CATALOG_COMPANY
+                    value: "224"
+                  - name: R7_PULSE_CATALOG_STORE_IDS
+                    value: 4b7de13b-7d8f-4ab7-b42a-4e1f333714d7
+                  - name: R7_PULSE_CATALOG_KEY
+                    valueFrom:
+                      secretKeyRef:
+                        name: r7-pulse-keys
+                        key: CATALOG_KEY
+                  - name: R7_PULSE_INC_ENABLED
+                    value: "true"
+                  - name: R7_PULSE_INC_COMPANY
+                    value: "224"
+                  - name: R7_PULSE_INC_STORE_IDS
+                    value: 4b7de13b-7d8f-4ab7-b42a-4e1f333714d7
+                  - name: R7_PULSE_INC_KEY
+                    valueFrom:
+                      secretKeyRef:
+                        name: r7-pulse-keys
+                        key: INC_KEY
+                  # Subdirectory of the csv-imports PVC: the module creates it 0700 (the mount root is group-writable).
+                  - name: R7_PULSE_INC_DIR
+                    value: /var/lib/r7/csv-imports/pulse-inc
+                  - name: R7_PULSE_INC_MAX_PART_BYTES
+                    value: "67108864"
+                  - name: R7_PULSE_INC_MAX_TOTAL_BYTES
+                    value: "2147483648"
+                  - name: R7_PULSE_INC_MAX_RUN_MS
+                    value: "1800000"
+                  - name: R7_PULSE_INC_MAX_CHANGES
+                    value: "10000"
+                  - name: R7_PULSE_INC_MIN_FREE_BYTES
+                    value: "1073741824"
                 volumeMounts:
                   - name: sap-service-layer-ca
                     mountPath: /etc/r7/certs/sap-service-layer-ca.crt
