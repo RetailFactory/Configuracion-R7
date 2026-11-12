@@ -5,10 +5,11 @@ namespace: r7-prod
 
 resources:
   - ../../base
+  - pulse-integration.configmap.yaml
 
 images:
   - name: docker.io/retailfactory/backend-r7
-    newTag: prod-initial
+    newTag: "5537b773"
 
 patches:
   - target:
@@ -18,3 +19,10 @@ patches:
       - op: replace
         path: /spec/replicas
         value: 2
+      - op: add
+        path: /spec/template/spec/containers/0/envFrom
+        value:
+          - configMapRef:
+              name: pulse-integration-config
+          - secretRef:
+              name: pulse-integration-secrets
