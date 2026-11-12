@@ -7,6 +7,7 @@ resources:
   - ../../base
   - sap-service-layer-ca.configmap.yaml
   - pdb-backend.yaml
+  - pulse-integration.configmap.yaml
 
 images:
   - name: docker.io/retailfactory/backend-r7
@@ -17,6 +18,17 @@ images:
     newTag: 5537b773
 
 patches:
+  - target:
+      kind: Deployment
+      name: backend
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/envFrom
+        value:
+          - configMapRef:
+              name: pulse-integration-config
+          - secretRef:
+              name: pulse-integration-secrets
   # Estrategia de rollout heredada de deploy/qa (commit "avoid backend
   # rollout quota surge"): con maxSurge:0 nunca se piden recursos para 3
   # pods a la vez durante un update, solo para 1 (una réplica vieja se baja
