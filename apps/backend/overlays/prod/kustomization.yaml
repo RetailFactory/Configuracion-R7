@@ -15,7 +15,7 @@ images:
     # del usuario ("toma el ultimo activo en QA, si hace falta lo
     # actualizamos despues"). Verificado en vivo contra deploy/qa antes de
     # copiarlo, y que QA seguía sano con ese build (/api/v1/health).
-    newTag: 5537b773
+    newTag: a9ddb0f5
 
 patches:
   - target:
